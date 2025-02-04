@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Payment</title>
+    <style>
+        body {
+            font-family: Montserrat, sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #4CAF50;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            max-width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            font-size: 16px;
+        }
+
+        .submit-btn,
+        .otp-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .submit-btn:hover,
+        .otp-btn:hover {
+            background-color: #45a049;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #4CAF50;
+            color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 60%;
+            text-align: center;
+        }
+
+        #closeModal {
+            color: white;
+            float: right;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .total-amount {
+            text-align: center;
+            font-size: 18px;
+            color: #f00707;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Confirm Payment</h2>
+
+        <div id="totalAmount" class="total-amount"></div>
+
+        <button class="submit-btn" id="confirmBtn" onclick="sendOtp()">Confirm Pay</button>
+
+        <div id="otpSection" style="display:none;">
+            <input type="text" id="otp" placeholder="Enter OTP" />
+            <button class="otp-btn" onclick="verifyOtp()">Submit OTP</button>
+        </div>
+
+        <p id="statusMessage"></p>
+    </div>
+
+    <div id="otpModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal">&times;</span>
+            <h2>Payment Successful!</h2>
+            <p>Your payment has been processed.</p>
+        </div>
+    </div>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const totalAmount = localStorage.getItem('totalAmount');
+            if (totalAmount) {
+                document.getElementById('totalAmount').textContent = `Total Amount: ${totalAmount} AED`;
+            } else {
+                document.getElementById('totalAmount').textContent = 'Total Amount not available';
+            }
+        });
+
+        async function sendOtp() {
+            const username = localStorage.getItem('username');
+            const response = await fetch('/send-otp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                localStorage.setItem('otp', result.otp);
+                document.getElementById('otpSection').style.display = 'block';
+                document.getElementById('confirmBtn').style.display = 'none';
+            }
+        }
+
+        function showModal() {
+            const modal = document.getElementById('otpModal');
+            modal.style.display = 'block';
+
+            setTimeout(() => {
+                modal.style.display = 'none'; 
+                window.location.href = 'payment_history.html';
+            }, 1700);
+        }
+
+        document.getElementById('closeModal').onclick = function () {
+            document.getElementById('otpModal').style.display = 'none';
+        }
+
+
+        function verifyOtp() {
+            const enteredOtp = document.getElementById('otp').value;
+            const otp = localStorage.getItem('otp');
+
+            if (enteredOtp === otp) {
+                console.log('OTP is correct!');
+                showModal();
+                storePaymentInHistory();
+                document.getElementById('otpSection').style.display = 'none';
+            } else {
+                console.log('Invalid OTP entered.');
+                document.getElementById('statusMessage').textContent = 'Invalid OTP';
+            }
+        }
+
+
+        function storePaymentInHistory() {
+            const totalAmount = localStorage.getItem('totalAmount');
+            const username = localStorage.getItem('username');
+
+            const paymentHistory = JSON.parse(localStorage.getItem('paymentHistory')) || {};
+
+            if (!paymentHistory[username]) {
+                paymentHistory[username] = [];
+            }
+
+            const newPayment = {
+                amount: totalAmount,
+                date: new Date().toLocaleString()
+            };
+
+            paymentHistory[username].push(newPayment); 
+            localStorage.setItem('paymentHistory', JSON.stringify(paymentHistory));
+        }
+
+
+
+    </script>
+
+</body>
+
+</html>

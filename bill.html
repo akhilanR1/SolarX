@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>View Bill</title>
+    <style>
+        body {
+            font-family: Montserrat, sans-serif;
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+        }
+
+        nav {
+            background-color: #333;
+            padding: 10px;
+        }
+
+        nav a {
+            color: white;
+            margin-right: 20px;
+            text-decoration: none;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 50px auto;
+        }
+
+        h2 {
+            color: #4CAF50;
+        }
+
+        .bill-section {
+            border: 2px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+            font-size: 1.2em;
+        }
+
+        .bill-header {
+            background-color: #f3f3f3;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            color: #4CAF50;
+            font-size: 18px;
+        }
+
+        .bill-details {
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bill-details .left,
+        .bill-details .right {
+            width: 45%;
+        }
+
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .totals-row:last-child {
+            border-bottom: none;
+        }
+
+        .green-text {
+            color: #4CAF50;
+        }
+
+        .red-text {
+            color: #f00707;
+        }
+
+        nav {
+            background-color: #4CAF50;
+            padding: 10px;
+        }
+
+        nav a {
+            color: white;
+            margin-right: 20px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="project.html">Home</a>
+        <a href="payment_history.html">Payment History</a>
+        <a id="loginLink" href="javascript:void(0)">Log out</a>
+    </nav>
+
+    <div class="container">
+        <h2>Your Bill</h2>
+        <div id="billDisplay" class="bill-section"></div>
+        <button id="paymentButton"
+            style="background-color: #4CAF50; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer;">Proceed
+            to Payment</button>
+    </div>
+
+    <script>
+        const username = localStorage.getItem('username');
+
+        fetch('/getExcelData')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(customers => {
+                const user = customers.find(c => c.username === username);
+                if (user) {
+                    const previousReading = user.previousReading;
+                    const currentReading = previousReading + Math.floor((Math.random() * 1000) + 20);
+                    const unitsConsumed = currentReading - previousReading;
+                    const unitPrice = 0.5;
+                    const amount = (unitsConsumed * unitPrice).toFixed(2);
+                    const vat = (0.05 * amount).toFixed(2);
+                    const totalAmount = (parseFloat(amount) + parseFloat(vat)).toFixed(0);
+
+                    const billDetails = `
+                        <div class='bill-header'>SolarX Electricity & Water Authority</div>
+                        <div class='bill-details'>
+                            <div class='left'>
+                                <strong>Name:</strong> ${user.name}<br> <!-- Display the name instead of the username -->
+                                <strong>Previous Reading:</strong> ${previousReading} units<br>
+                                <strong>Current Reading:</strong> ${currentReading} units<br>
+                                <strong>Units Consumed:</strong> ${unitsConsumed} units<br>
+                            </div>
+                            <div class='right'>
+                                <strong>Unit Price:</strong> ${unitPrice} AED<br>
+                                <strong>Amount:</strong> ${amount} AED<br>
+                                <strong>VAT (5%):</strong> ${vat} AED<br>
+                            </div>
+                        </div>
+                        <div class='totals-row'>
+                            <span><strong>Total Amount:</strong></span>
+                            <span class='red-text'>${totalAmount} AED</span>
+                        </div>
+                        <div class='totals-row'>
+                            <span><strong>Amount in Words:</strong></span>
+                            <span class='red-text' id='amountInWords'></span>
+                        </div>
+                    `;
+
+                    document.getElementById('billDisplay').innerHTML = billDetails;
+                    document.getElementById('amountInWords').innerText = numberToWords(totalAmount) + " AED ONLY";
+
+                    document.getElementById('paymentButton').addEventListener('click', function () {
+                        localStorage.setItem('totalAmount', totalAmount);
+                        window.location.href = 'payment.html';
+                    });
+                } else {
+                    document.getElementById('billDisplay').textContent = 'User not found!';
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching data:", error);
+                document.getElementById('billDisplay').textContent = 'Failed to load bill information.';
+            });
+
+        function numberToWords(num) {
+            const ones = ["", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN",
+                "ELEVEN", "TWELVE", "THIRTEEN", "FOURTEEN", "FIFTEEN", "SIXTEEN", "SEVENTEEN",
+                "EIGHTEEN", "NINETEEN"];
+            const tens = ["", "", "TWENTY", "THIRTY", "FORTY", "FIFTY", "SIXTY", "SEVENTY", "EIGHTY", "NINETY"];
+            let result = "";
+
+            if (num >= 1000) {
+                result += ones[Math.floor(num / 1000)] + " THOUSAND ";
+                num %= 1000;
+            }
+            if (num >= 100) {
+                result += ones[Math.floor(num / 100)] + " HUNDRED ";
+                num %= 100;
+            }
+            if (num >= 20) {
+                result += tens[Math.floor(num / 10)] + " ";
+                num %= 10;
+            }
+            result += ones[num];
+
+            return result.trim();
+        }
+
+    </script>
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal">&times;</span>
+            <h2>Confirm Log Out</h2>
+            <p>Are you sure you want to log out?</p>
+            <button id="confirmLogout">Yes, log out</button>
+            <button id="cancelLogout">Cancel</button>
+            <div id="notification" style="display: none; margin-top: 15px;"></div>
+        </div>
+    </div>
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #4CAF50;
+            color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 60%;
+            text-align: center;
+        }
+
+        #closeModal {
+            color: white;
+            float: right;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        #confirmLogout,
+        #cancelLogout {
+            background-color: white;
+            color: #4CAF50;
+            padding: 10px 15px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            border: 2px solid #4CAF50;
+            border-radius: 25px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #confirmLogout:hover,
+        #cancelLogout:hover {
+            background-color: #38863b;
+            color: white;
+        }
+    </style>
+
+    <script>
+        document.getElementById('loginLink').addEventListener('click', function () {
+            if (this.innerText === 'Log out') {
+                document.getElementById('logoutModal').style.display = 'block';
+            }
+        });
+
+        document.getElementById('confirmLogout').addEventListener('click', function () {
+            document.getElementById('logoutModal').style.display = 'none';
+
+            const notification = document.getElementById('notification');
+            notification.style.display = 'block';
+            notification.innerHTML = 'You have been logged out successfully!';
+
+            setTimeout(() => {
+                localStorage.removeItem('loggedIn');
+                localStorage.removeItem('username');
+                window.location.href = 'project.html';
+            }, 2000);
+        });
+
+        document.getElementById('cancelLogout').addEventListener('click', function () {
+            document.getElementById('logoutModal').style.display = 'none';
+        });
+
+        document.getElementById('closeModal').addEventListener('click', function () {
+            document.getElementById('logoutModal').style.display = 'none';
+        });
+
+        window.addEventListener('click', function (event) {
+            const modal = document.getElementById('logoutModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+    </script>
+</body>
+
+</html>

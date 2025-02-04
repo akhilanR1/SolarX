@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Payment History</title>
+    <style>
+        body {
+            font-family: Montserrat, sans-serif;
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+        }
+
+        nav {
+            background-color: #4CAF50;
+            padding: 10px;
+        }
+
+        nav a {
+            color: white;
+            margin-right: 20px;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #4CAF50;
+            text-align: center;
+        }
+
+        .payment-history {
+            border: 2px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .record {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .record:last-child {
+            border-bottom: none;
+        }
+
+        .green-text {
+            color: #4CAF50;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="project.html">Home</a>
+        <a href="bill.html">View Bill</a>
+        <a id="loginLink" href="javascript:void(0)">Log out</a>
+    </nav>
+
+    <div class="container">
+        <h2>Payment History</h2>
+        <div id="historyDisplay" class="payment-history"></div>
+    </div>
+
+    <script>
+        const username = localStorage.getItem('username'); 
+        const paymentHistory = JSON.parse(localStorage.getItem('paymentHistory')) || {}; 
+        const userHistory = paymentHistory[username] || [];
+
+
+        const historyDisplay = document.getElementById('historyDisplay');
+
+        if (userHistory.length === 0) {
+            historyDisplay.innerHTML = '<p>No payment history available for this user.</p>';
+        } else {
+            userHistory.forEach(record => {
+                const recordHtml = `
+            <div class="record">
+                <div><strong>Amount:</strong> ${record.amount} AED</div>
+                <div><strong>Date:</strong> ${record.date}</div>
+            </div>
+        `;
+                historyDisplay.innerHTML += recordHtml;
+            });
+        }
+
+        console.log('Username:', username);
+        console.log('User History:', userHistory);
+
+
+    </script>
+
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal">&times;</span>
+            <h2>Confirm Log Out</h2>
+            <p>Are you sure you want to log out?</p>
+            <button id="confirmLogout">Yes, log out</button>
+            <button id="cancelLogout">Cancel</button>
+            <div id="notification" style="display: none; margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #4CAF50;
+            color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 60%;
+            text-align: center;
+        }
+
+        #closeModal {
+            color: white;
+            float: right;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        #confirmLogout,
+        #cancelLogout {
+            background-color: white;
+            color: #4CAF50;
+            padding: 10px 15px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            border: 2px solid #4CAF50;
+            border-radius: 25px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        #confirmLogout:hover,
+        #cancelLogout:hover {
+            background-color: #38863b;
+            color: white;
+        }
+    </style>
+
+    <script>
+        document.getElementById('loginLink').addEventListener('click', function () {
+            if (this.innerText === 'Log out') {
+                document.getElementById('logoutModal').style.display = 'block';
+            }
+        });
+
+        document.getElementById('confirmLogout').addEventListener('click', function () {
+            document.getElementById('logoutModal').style.display = 'none';
+
+            const notification = document.getElementById('notification');
+            notification.style.display = 'block';
+            notification.innerHTML = 'You have been logged out successfully!';
+
+            setTimeout(() => {
+                localStorage.removeItem('loggedIn');
+                localStorage.removeItem('username');
+                window.location.href = 'project.html';
+            }, 2000);
+        });
+
+        document.getElementById('cancelLogout').addEventListener('click', function () {
+            document.getElementById('logoutModal').style.display = 'none';
+        });
+
+        document.getElementById('closeModal').addEventListener('click', function () {
+            document.getElementById('logoutModal').style.display = 'none';
+        });
+
+        window.addEventListener('click', function (event) {
+            const modal = document.getElementById('logoutModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+    </script>
+</body>
+
+</html>

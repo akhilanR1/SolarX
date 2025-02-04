@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Water Bill</title>
+    <style>
+        body {
+            font-family: 'Calibri', sans-serif;
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+        }
+
+        .center-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .column {
+            flex: 1;
+            text-align: center;
+        }
+
+        .column img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: bold;
+            font-size: 24px;
+            font-family: 'Calibri';
+            white-space: nowrap;
+        }
+
+        h2 {
+            font-family: 'Calibri';
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .payment-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 80%;
+            margin: 0 auto;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        .payment-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .payment-button:hover {
+            background-color: #45a049;
+        }
+
+
+        .contact-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        .contact-form label {
+            display: block;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        .contact-form input[type="text"],
+        .contact-form input[type="email"],
+        .contact-form input[type="tel"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .contact-form input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .secondary-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .secondary-button:hover {
+            background-color: #45a049;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #4CAF50;
+            color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 60%;
+            text-align: center;
+        }
+
+        #closeModal {
+            color: white;
+            float: right;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        nav {
+            background-color: #4CAF50;
+            padding: 10px;
+        }
+
+        nav a {
+            color: white;
+            margin-right: 20px;
+            text-decoration: none;
+        }
+    </style>
+
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+            <span id="closeModal">&times;</span>
+            <h2>You have successfully logged out!</h2>
+            <p>You will be redirected to the home page.</p>
+        </div>
+    </div>
+</head>
+
+<body>
+    <header>
+        <nav>
+            <a href="project.html">Home</a>
+            <a href="bill.html">View Bill</a>
+            <a href="payment_history.html">Payment History</a>
+            <a id="loginLink" href="javascript:void(0)">Log out</a>
+        </nav>
+
+        <div id="logoutModal" class="modal">
+            <div class="modal-content">
+                <span id="closeModal">&times;</span>
+                <h2>You have successfully logged out!</h2>
+                <p>You will be redirected to the home page.</p>
+            </div>
+        </div>
+
+        <script>
+            if (localStorage.getItem('loggedIn') === 'true') {
+                document.getElementById('loginLink').innerText = 'Log out';
+                document.getElementById('loginLink').href = 'javascript:void(0)';
+            } else {
+                document.getElementById('loginLink').innerText = 'Login';
+                document.getElementById('loginLink').href = 'login.html';
+            }
+
+            document.getElementById('loginLink').addEventListener('click', function () {
+                if (this.innerText === 'Log out') {
+                    localStorage.removeItem('loggedIn');
+                    localStorage.removeItem('username');
+                    showLogoutModal();
+                }
+            });
+
+            function showLogoutModal() {
+                document.getElementById('logoutModal').style.display = 'block';
+
+                setTimeout(() => {
+                    window.location.href = 'project.html';
+                }, 1000);
+            }
+
+            document.getElementById('closeModal').onclick = function () {
+                document.getElementById('logoutModal').style.display = 'none';
+                window.location.href = 'project.html';
+            }
+
+            window.onclick = function (event) {
+                if (event.target == document.getElementById('logoutModal')) {
+                    document.getElementById('logoutModal').style.display = 'none';
+                    window.location.href = 'project.html';
+                }
+            }
+        </script>
+        <br>
+        <div class="row">
+            <div class="column" style="text-align: left;">
+                <img src="solarx.png" width="200" height="120">
+            </div>
+            <div class="column">
+                <h1 style=color:#4CAF50><b>SOLARX WATER AND ELECTRICITY BILL</b></h1>
+            </div>
+            <div class="column" style="text-align: right;">
+                <img src="solar.jpg" width="330" height="110">
+            </div>
+        </div>
+    </header>
+    <hr>
+    <style>
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            height: 50vh;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .slide {
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transition: transform 1s ease;
+        }
+
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+    <div class="slideshow-container">
+        <div class="slide fade"><img src="1.jpg" alt="Image 1"></div>
+        <div class="slide fade"><img src="2.jpg" alt="Image 2"></div>
+        <div class="slide fade"><img src="3.jpg" alt="Image 3"></div>
+        <div class="slide fade"><img src="4.jpg" alt="Image 4"></div>
+        <div class="slide fade"><img src="5.jpg" alt="Image 5"></div>
+    </div>
+
+    <script>
+        let slideIndex = 0;
+        showSlides();
+
+        function showSlides() {
+            const slides = document.getElementsByClassName("slide");
+            slideIndex++;
+            if (slideIndex >= slides.length) { slideIndex = 0; }
+
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].style.transform = `translateX(${(i - slideIndex) * 100}%)`;
+            }
+
+            setTimeout(showSlides, 5000);
+        }
+    </script>
+    <hr>
+    <style>
+        .engagement-box {
+            background-color: #D9EAD3;
+            padding: 20px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .engagement-box h2,
+        .engagement-box p {
+            margin: 10px 0;
+        }
+
+        .engagement-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .idea-box,
+        .voice-box {
+            background-color: #F0F0F0;
+            border: 1px solid #ccc;
+            padding: 15px;
+            width: 45%;
+            border-radius: 5px;
+        }
+
+        .news-box {
+            background-color: #3C6E47;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .news-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .news-item {
+            background-color: #2F4F29;
+            padding: 15px;
+            border-radius: 5px;
+            width: 23%;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Calibri', sans-serif;
+            background-color: rgb(255, 255, 255);
+            color: rgb(0, 0, 0);
+        }
+
+        h1,
+        h2,
+        .contact-info,
+        .contact-info a {
+            font-family: 'Calibri', sans-serif;
+        }
+
+        .payment-button,
+        .secondary-button,
+        .modal-content,
+        nav a {
+            font-family: 'Calibri', sans-serif;
+        }
+    </style>
+
+    <div class="engagement-box">
+        <h2>Engage with Us</h2>
+        <br>
+        <p>Your voice matters. Let’s improve together.</p>
+        <p>We’ll resolve your complaint and respond to your suggestions and comments within 3 working days.</p>
+        <br>
+        <div class="engagement-container">
+            <div class="idea-box">
+                <h3>Share Your Ideas</h3>
+                <p>Submit your ideas and we will review them.</p>
+            </div>
+
+            <div class="voice-box">
+                <h3>Your Voice Matters</h3>
+                <p>Share your suggestions and complaints so we can improve our services.</p>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="news-box">
+        <h2>News</h2>
+        <div class="news-container">
+            <div class="news-item">
+                <p><strong>October 6, 2024</strong> <br> <u>New Branch Opening</u><br><br>We have a new branch opening
+                    near Al Khail Road</p>
+            </div>
+            <div class="news-item">
+                <p><strong>October 5, 2024</strong> <br> <u>Upgrading our Services</u><br><br>We will be opening 100 new
+                    ev-car chargers in many malls like Dubai Mall.</p>
+            </div>
+            <div class="news-item">
+                <p><strong>October 4, 2024</strong> <br><u>Now Hiring</u><br><br>We are looking for new web developers
+                    to upgrade our website</p>
+            </div>
+            <div class="news-item">
+                <p><strong>October 3, 2024</strong> <br> <u>Our Social Media</u><br><br>Check us out on instagram,
+                    facebook, X. Tag us using #SOLARXproject</p>
+            </div>
+        </div>
+        <br>
+    </div>
+
+    <div class="efforts-box">
+        <div class="efforts-container">
+            <div class="efforts-image">
+                <img src="EP.jpg" alt="SolarX Efforts" width="350" height="300" style="border-radius: 15px;">
+            </div>
+            <div class="efforts-text">
+                <h2>SolarX's Efforts</h2>
+                <p>SolarX is a renewable energy company dedicated to providing clean electricity through innovative solar solutions. They combat climate change by expanding solar farms, developing efficient battery storage, and promoting sustainable energy adoption. By reducing reliance on fossil fuels, SolarX helps create a greener future while making renewable energy more accessible worldwide. </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="day-box">
+        <h2>Advice of the Day</h2>
+        <p id="day-message">Loading...</p>
+    </div>
+
+    <script>
+
+        const dayMessages = [
+            "Fix leaks quickly; even a small drip can waste thousands of gallons annually.",
+            "Unplug devices when not in use to prevent phantom energy waste.",
+            "Shorten showers to save up to 5 gallons of water per minute.",
+            "Switch to LED bulbs; they use 75% less energy and last longer.",
+            "Install low-flow fixtures to reduce water usage without sacrificing pressure.",
+            "Avoid running heavy loads like washing machines during peak energy hours.",
+            "Use cold water for laundry to save energy on heating."
+        ];
+
+        const today = new Date().getDay();
+        document.getElementById('day-message').textContent = dayMessages[today];
+
+    </script>
+
+
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Oswald&display=swap');
+        
+        .efforts-box {
+            background-color: #d4e9d7;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .efforts-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .efforts-image {
+            flex: 1;
+            text-align: left;
+        }
+
+        .efforts-text {
+            flex: 3;
+            margin-left: 20px;
+        }
+
+        .efforts-text h2 {
+            color: #3c6e47;
+            font-family: 'Calibri', sans-serif;
+        }
+
+        .efforts-text p {
+            font-family: 'Calibri', sans-serif;
+            color: #333;
+        }
+
+        .day-box {
+            background-color: #91e572;
+            padding: 20px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            position: relative;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .day-box p {
+            margin: 10px 0;
+            font-size: 30px;
+            font-family: "Oswald";
+        }
+    </style>
+
+    <hr>
+
+    <div class="center-form">
+        <style>
+            .contact-form {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .problem-and-button {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .problem-options {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .payment-button {
+                padding: 5px 10px;
+                cursor: pointer;
+            }
+
+            .help-box {
+                background-color: #d4f0ca;
+                padding: 20px;
+                text-align: center;
+                font-family: Arial, sans-serif;
+                position: relative;
+                margin-top: 20px;
+            }
+        </style>
+
+        <div class="help-box">
+            <p class="contact-info">For any queries, please call 04-6019999 (emergency: 991 - electricity, 992 - water)
+                or
+                email us at <a href="mailto:customercare@solarx.com">customercare@solarx.com</a>. For future
+                reference,
+                visit <a href="https://wikipedia.org">http://www.solarx.com</a>, or fill out the form below to receive
+                a
+                response within 2 business days.</p><br>
+        </div>
+
+        <form class="contact-form">
+            <label for="fname">First Name:</label>
+            <input type="text" id="fname" name="fname" required>
+
+            <label for="lname">Last Name:</label>
+            <input type="text" id="lname" name="lname" required>
+
+            <div class="problem-and-button">
+                <div class="problem-options">
+                    <p>Type of Problem:</p>
+                    <input type="radio" id="water" name="problem" value="Water">
+                    <label for="water">Water</label>
+                    <input type="radio" id="electricity" name="problem" value="Electricity">
+                    <label for="electricity">Electricity</label>
+                    <input type="radio" id="both" name="problem" value="Both">
+                    <label for="both">Both</label>
+                </div>
+            </div>
+
+            <label for="query">Enter your Query Here:</label>
+            <input type="text" id="query" name="query" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" name="phone" required>
+
+            <button type="submit" class="payment-button">Submit</button>
+        </form>
+
+        <hr>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+        <script>
+            function loadExcelData() {
+                fetch('/getExcelData')
+                    .then(response => response.json())
+                    .then(data => {
+                        localStorage.setItem("customers", JSON.stringify(data));
+                        console.log("Data loaded successfully from the Excel file!");
+                    })
+                    .catch(error => {
+                        console.error("Error fetching data from the server:", error);
+                    });
+            }
+
+            document.addEventListener('DOMContentLoaded', loadExcelData);
+        </script>
+
+</body>
+
+</html>

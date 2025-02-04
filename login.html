@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: Montserrat, sans-serif;
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #4CAF50;
+        }
+
+        .input-group {
+            margin: 15px 0;
+            padding-right: 10px;
+        }
+
+        .input-group label {
+            display: block;
+        }
+
+        .input-group input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            border: none;
+            width: 100%;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background-color: #3f9042;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 1px solid #4CAF50;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="input-group">
+                <label>Username:</label>
+                <input type="text" id="username" required>
+            </div>
+            <div class="input-group">
+                <label>Password:</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" class="submit-btn">Login</button>
+        </form>
+        <p id="message"></p>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Server error: ' + response.statusText);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    localStorage.setItem('loggedIn', true);
+                    localStorage.setItem('username', username);
+                    showModal("Successfully logged in!");
+                    setTimeout(() => {
+                        window.location.href = 'project.html';
+                    }, 1000);
+                } else {
+                    document.getElementById('message').textContent = result.message || 'Invalid username or password';
+                }
+            } catch (error) {
+                console.error("Error during login:", error);
+                document.getElementById('message').textContent = 'Error during login. Please try again.';
+            }
+        });
+
+        function showModal(message) {
+            const modal = document.createElement('div');
+            modal.classList.add('modal');
+            modal.innerHTML = `
+                <h2>${message}</h2>
+                <button onclick="closeModal()">Close</button>
+            `;
+            document.body.appendChild(modal);
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.querySelector('.modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+    </script>
+</body>
+
+</html>
