@@ -7,15 +7,12 @@ const nodemailer = require('nodemailer');
 const app = express();
 app.use(express.json());
 
-// Serve static files
 app.use(express.static(path.join(__dirname)));
 
-// Serve HTML file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'project.html'));
 });
 
-// Endpoint to fetch Excel data
 app.get('/getExcelData', (req, res) => {
     try {
         const workbook = XLSX.readFile(path.join(__dirname, 'customers.xlsx'));
@@ -29,7 +26,6 @@ app.get('/getExcelData', (req, res) => {
     }
 });
 
-// OTP Sending Endpoint
 app.post('/send-otp', async (req, res) => {
     const { username } = req.body;
 
@@ -50,7 +46,7 @@ app.post('/send-otp', async (req, res) => {
             service: 'gmail',
             auth: {
                 user: 'otpfromsolarx@gmail.com',
-                pass: 'phsupqmwjxpcpdrz' // Fake email, keeping as requested
+                pass: 'phsupqmwjxpcpdrz' 
             }
         });
 
@@ -70,7 +66,6 @@ app.post('/send-otp', async (req, res) => {
     }
 });
 
-// Login Endpoint
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     console.log(`Login attempt: Username = ${username}, Password = ${password}`);
@@ -96,7 +91,6 @@ app.post('/login', (req, res) => {
     }
 });
 
-// Start Server
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
