@@ -1,5 +1,4 @@
 const fs = require('fs');
-const https = require('https');
 const express = require('express');
 const path = require('path');
 const XLSX = require('xlsx');
@@ -8,84 +7,70 @@ const nodemailer = require('nodemailer');
 const app = express();
 app.use(express.json());
 
-
-const httpsOptions = {
-    key: fs.readFileSync('/Users/akhilan/Documents/Grade 11 - Resources/Computer Science/SolarX Project/server.key'),
-    cert: fs.readFileSync('/Users/akhilan/Documents/Grade 11 - Resources/Computer Science/SolarX Project/server.crt')
-};
-
-
-
+// Serve static files
 app.use(express.static(path.join(__dirname)));
 
+// Serve HTML file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'project.html'));
 });
 
+// Endpoint to fetch Excel data
 app.get('/getExcelData', (req, res) => {
-    const workbook = XLSX.readFile(path.join(__dirname, 'customers.xlsx'));
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
-    res.json(jsonData);
+    try {
+        const workbook = XLSX.readFile(path.join(__dirname, 'customers.xlsx'));
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        res.json(jsonData);
+    } catch (error) {
+        console.error("Error reading Excel file:", error);
+        res.status(500).json({ success: false, message: "Error reading Excel file" });
+    }
 });
 
-https.createServer(httpsOptions, app).listen(443, '0.0.0.0', () => {
-    console.log('HTTPS server running on https://solarx.project');
-});
-
-
-
+// OTP Sending Endpoint
 app.post('/send-otp', async (req, res) => {
     const { username } = req.body;
 
-    const workbook = XLSX.readFile(path.join(__dirname, 'customers.xlsx'));
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const customers = XLSX.utils.sheet_to_json(worksheet);
-    const user = customers.find(c => c.username === username);
-
-    if (!user) {
-        return res.status(400).json({ success: false, message: "User not found" });
-    }
-
-    const otp = Math.floor(100000 + Math.random() * 900000);
-
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'otpfromsolarx@gmail.com',
-            pass: 'phsupqmwjxpcpdrz'
-        }
-    });
-
-    const mailOptions = {
-        from: 'otpfromsolarx@gmail.com',
-        to: user.email,
-        subject: 'Your OTP Code',
-        text: `
-            Hello ${user.name},
-    
-            Your OTP code is ${otp}
-    
-            Please enter this code on the website to confirm your payment.
-    
-            If you think this email is an error, please call our helpline number: 052 135 7447
-        `
-    };
-
-
     try {
+        const workbook = XLSX.readFile(path.join(__dirname, 'customers.xlsx'));
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const customers = XLSX.utils.sheet_to_json(worksheet);
+        const user = customers.find(c => c.username === username);
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: "User not found" });
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000);
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'otpfromsolarx@gmail.com',
+                pass: 'phsupqmwjxpcpdrz' // Fake email, keeping as requested
+            }
+        });
+
+        const mailOptions = {
+            from: 'otpfromsolarx@gmail.com',
+            to: user.email,
+            subject: 'Your OTP Code',
+            text: `Hello ${user.name},\n\nYour OTP code is ${otp}\n\nPlease enter this code on the website to confirm your payment.\n\nIf you think this email is an error, please call our helpline: 052 135 7447`
+        };
+
         await transporter.sendMail(mailOptions);
-        console.log('OTP sent to email:', user.email);
+        console.log('OTP sent to:', user.email);
         res.json({ success: true, otp });
     } catch (error) {
         console.error("Error sending OTP:", error);
-        res.status(500).json({ success: false, message: 'Failed to send OTP' });
+        res.status(500).json({ success: false, message: "Failed to send OTP" });
     }
 });
 
-
+// Login Endpoint
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     console.log(`Login attempt: Username = ${username}, Password = ${password}`);
@@ -111,5 +96,8 @@ app.post('/login', (req, res) => {
     }
 });
 
-
-
+// Start Server
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
