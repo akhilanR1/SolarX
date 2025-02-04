@@ -1,13 +1,15 @@
 {
   "name": "solarx-project",
   "version": "1.0.0",
-  "description": "#### Video Demo:  https://youtu.be/YEgrj1D4uks",
+  "description": "SolarX Project",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "dependencies": {
+    "express": "^4.18.2",
+    "xlsx": "^0.18.5",
+    "nodemailer": "^6.9.1",
+    "path": "^0.12.7"
+  }
 }
