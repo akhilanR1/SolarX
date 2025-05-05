@@ -22,7 +22,7 @@ You will then be redirected to **Payment History**, where it displays how much y
 
 ## Payment History
 
-I have used a self-signed certificate to host my server on a https. This however will likely not work when downloaded by another user. Therefore this will be demonstrated in the video.
+This shows all the previous transactions.
 
 ## Steps to Open the Project
 
